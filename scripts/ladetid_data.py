@@ -36,10 +36,21 @@ UA = "Ladetid-data/1.0 (github.com/jonurskov/Ladetid-data)"
 
 # ---------------------------------------------------------------- hjælpere
 
-def http_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read().decode("utf-8"))
+def http_json(url, tries=4):
+    """Henter JSON. Prøver igen, hvis siden siger, at den har for travlt (fx Energi Data Service)."""
+    import time
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                j = json.loads(r.read().decode("utf-8"))
+            if isinstance(j, dict) and j.get("statusCode") == 429:
+                raise IOError("for mange forespørgsler")
+            return j
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(30)
 
 
 def read_json(path, default=None):
@@ -137,29 +148,31 @@ def save_snapshot(today, now_utc):
 
 # ---------------------------------------------------------------- 2. faktiske priser
 
-def fetch_actual(area, start, end):
-    flt = urllib.parse.quote(json.dumps({"PriceArea": [area]}))
+def fetch_actual(areas, start, end):
+    """Faktiske spotpriser for alle områder i én forespørgsel: {område: {dato: [24]}}"""
+    flt = urllib.parse.quote(json.dumps({"PriceArea": list(areas)}))
     url = (f"https://api.energidataservice.dk/dataset/DayAheadPrices?start={start.isoformat()}"
            f"&end={end.isoformat()}&filter={flt}&sort=TimeDK&limit=0")
     j = http_json(url)
     vals = {}
     for r in j.get("records", []):
-        t, v = r.get("TimeDK"), r.get("DayAheadPriceDKK")
-        if t is None or v is None:
+        t, v, a = r.get("TimeDK"), r.get("DayAheadPriceDKK"), r.get("PriceArea")
+        if t is None or v is None or a not in areas:
             continue
-        vals.setdefault((t[:10], int(t[11:13])), []).append(float(v) / 1000)
-    return hourly(vals)
+        vals.setdefault(a, {}).setdefault((t[:10], int(t[11:13])), []).append(float(v) / 1000)
+    return {a: hourly(v) for a, v in vals.items()}
 
 
 def update_actuals(today):
     path = os.path.join(DATA, "faktiske_priser.json")
     actual = read_json(path, {})
+    try:
+        all_got = fetch_actual(AREAS, today - timedelta(days=45), today + timedelta(days=2))
+    except Exception as e:
+        print(f"Advarsel: faktiske priser: {e}", file=sys.stderr)
+        all_got = {}
     for area in AREAS:
-        try:
-            got = fetch_actual(area, today - timedelta(days=45), today + timedelta(days=2))
-        except Exception as e:
-            print(f"Advarsel: faktiske priser {area}: {e}", file=sys.stderr)
-            continue
+        got = all_got.get(area, {})
         a = actual.setdefault(area, {})
         for d, arr in got.items():
             if sum(v is not None for v in arr) >= 23:  # kun hele døgn
