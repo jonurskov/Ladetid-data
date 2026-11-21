@@ -1,7 +1,8 @@
 {
- "lavet": "2026-11-21T14:29:27.387029+00:00",
+ "lavet": "2026-11-21T14:43:21.297518+00:00",
  "periode_fra": "2026-10-24",
  "periode_til": "2026-11-21",
+ "graense": "Rettelsen flytter højst prognosen 10 % og 15 øre",
  "omraader": {
   "DK1": {
    "horisonter": [],
@@ -12,7 +13,8 @@
    "bruger_rettelse": {
     "kort": false,
     "lang": false
-   }
+   },
+   "faktorer": {}
   },
   "DK2": {
    "horisonter": [],
@@ -23,7 +25,8 @@
    "bruger_rettelse": {
     "kort": false,
     "lang": false
-   }
+   },
+   "faktorer": {}
   }
  }
 }
