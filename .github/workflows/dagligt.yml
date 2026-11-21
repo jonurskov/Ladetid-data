@@ -2,8 +2,10 @@ name: Daglig prognosekontrol
 
 on:
   schedule:
-    # Hver dag kl. 10:15 UTC (11:15 om vinteren, 12:15 om sommeren), før morgendagens priser kommer
+    # Morgen: kl. 10:15 UTC (11:15 om vinteren), før morgendagens priser kommer
     - cron: "15 10 * * *"
+    # Eftermiddag: kl. 13:40 UTC (14:40 om vinteren), efter elpriser.org har lavet ny prognose
+    - cron: "40 13 * * *"
   workflow_dispatch:
 
 permissions:
