@@ -1,0 +1,34 @@
+name: Daglig prognosekontrol
+
+on:
+  schedule:
+    # Hver dag kl. 10:15 UTC (11:15 om vinteren, 12:15 om sommeren), før morgendagens priser kommer
+    - cron: "15 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data
+  cancel-in-progress: false
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer Excel bibliotek
+        run: pip install openpyxl==3.1.5
+      - name: Gem prognoser, mål fejl og lav Excel
+        run: python scripts/ladetid_data.py
+      - name: Gem resultatet i repoet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data excel
+          git diff --cached --quiet || git commit -m "Daglig prognosekontrol $(date -u +%Y-%m-%d)"
+          git push
