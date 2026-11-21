@@ -2,7 +2,7 @@
 
 Jon Pedersen, november 2026
 
-Data til appen Ladetid. Hver dag gemmes de prognoser for elprisen, som appen bruger, og de sammenlignes med de faktiske priser, når de kommer. Ud fra fejlene beregnes en rettelse, som appen bruger, hvis den har ramt bedre end den rå prognose de sidste 4 uger.
+Data til appen Ladetid. To gange om dagen gemmes de prognoser for elprisen, som appen bruger, sammen med vejrudsigten for vind, sol og temperatur og om dagen er en helligdag. Prognoserne sammenlignes med de faktiske priser, når de kommer. Ud fra fejlene lærer programmet en rettelse, som appen bruger, hvis den har ramt bedre end den rå prognose de sidste 4 uger. Rettelsen flytter aldrig prognosen mere end 10 % og højst 15 øre væk fra elpriser.org og Strømligning.
 
 ## Filer
 
