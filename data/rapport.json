@@ -1,0 +1,29 @@
+{
+ "lavet": "2026-11-21T14:26:43.242756+00:00",
+ "periode_fra": "2026-10-24",
+ "periode_til": "2026-11-21",
+ "omraader": {
+  "DK1": {
+   "horisonter": [],
+   "kort": null,
+   "kort_rettet": null,
+   "lang": null,
+   "lang_rettet": null,
+   "bruger_rettelse": {
+    "kort": false,
+    "lang": false
+   }
+  },
+  "DK2": {
+   "horisonter": [],
+   "kort": null,
+   "kort_rettet": null,
+   "lang": null,
+   "lang_rettet": null,
+   "bruger_rettelse": {
+    "kort": false,
+    "lang": false
+   }
+  }
+ }
+}
